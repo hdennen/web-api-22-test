@@ -33,7 +33,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +42,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -169,8 +167,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\Startup.cs" />
+    <Compile Include="Constraints\IdConstraint.cs" />
     <Compile Include="DataAccess\Models\Reservation.cs" />
     <Compile Include="DTOs\AuthorizeRequestDto.cs" />
+    <Compile Include="DTOs\TourDto.cs" />
     <Compile Include="DTOs\TourSearchRequestDto.cs" />
     <Compile Include="Config\GlobalConfig.cs" />
     <Compile Include="Controllers\TourController.cs" />

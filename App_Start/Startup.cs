@@ -3,6 +3,7 @@ using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using System.Web.Http.Routing;
 using ExploreCalifornia.Config;
+using ExploreCalifornia.Constraints;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Newtonsoft.Json;
@@ -22,9 +23,13 @@ namespace ExploreCalifornia
             ConfigureWebApi(app, config);
         }
 
-        
+
         private static void ConfigureWebApi(IAppBuilder app, HttpConfiguration config)
         {
+            var constraintResolver = new DefaultInlineConstraintResolver();
+            constraintResolver.ConstraintMap.Add("identity", typeof(IdConstraint));
+            config.MapHttpAttributeRoutes(constraintResolver);
+            
             config.Formatters.XmlFormatter.UseXmlSerializer = true;
 
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
@@ -32,14 +37,7 @@ namespace ExploreCalifornia
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional },
-                constraints: new { id = @"\d+" }
-            );
-
-            config.Routes.MapHttpRoute(
-                name: "DefaultNameApi",
-                routeTemplate: "api/{controller}/{name}",
-                defaults: new { name = RouteParameter.Optional }
+                defaults: new { id = RouteParameter.Optional }
             );
 
             app.UseWebApi(config);

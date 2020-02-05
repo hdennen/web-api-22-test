@@ -9,34 +9,42 @@ using ExploreCalifornia.DTOs;
 
 namespace ExploreCalifornia.Controllers
 {
+    [RoutePrefix("api/tour")]
     public class TourController : ApiController
     {
         AppDataContext _context = new AppDataContext();
 
         [HttpGet]
-        public List<Tour> GetAllTours ([FromUri]bool freeOnly = false)
+        public List<TourDto> GetAllTours ([FromUri]bool freeOnly = false)
         {
-            var query = _context.Tours.AsQueryable();
+            var query = _context.Tours
+                .Select(i => new TourDto { 
+                    Description = i.Description,
+                    Name = i.Name,
+                    Price = i.Price,
+                    TourId = i.TourId
+                })
+                .AsQueryable();
 
             if (freeOnly) query = query.Where(i => i.Price == 0.0m);
 
             return query.ToList();
         }
 
-        public Tour GetById(int id)
+        [Route("{id:identity}")]
+        public Tour Get(int id)
         {
             var item = _context.Tours
-                .Where(i => i.TourId == id)
-                .FirstOrDefault();
+                .FirstOrDefault(i => i.TourId == id);
 
             return item;
         }
 
-        public Tour GetByName(string name)
+        [Route("{name}")]
+        public Tour Get(string name)
         {
             var item = _context.Tours
-                .Where(i => i.Name.Contains(name))
-                .FirstOrDefault();
+                .FirstOrDefault(i => i.Name.Contains(name));
 
             return item;
         }
@@ -51,10 +59,9 @@ namespace ExploreCalifornia.Controllers
                     Content = new StringContent("MinPrice must be less than MaxPrice")
                 });
 
-            var query = _context.Tours.AsQueryable();
-
-            query = query.Where(i => i.Price <= request.MaxPrice
-                                     && i.Price >= request.MinPrice);
+            var query = _context.Tours
+                .Where(i => i.Price <= request.MaxPrice 
+                            && i.Price >= request.MinPrice);
 
             return query.ToList();
         }

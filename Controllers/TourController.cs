@@ -11,10 +11,10 @@ namespace ExploreCalifornia.Controllers
 {
     public class TourController : ApiController
     {
-        private AppDataContext _context = new AppDataContext();
+        AppDataContext _context = new AppDataContext();
 
         [HttpGet]
-        public List<Tour> GetAllTours([FromUri]bool freeOnly = false)
+        public List<Tour> GetAllTours ([FromUri]bool freeOnly = false)
         {
             var query = _context.Tours.AsQueryable();
 
@@ -23,10 +23,27 @@ namespace ExploreCalifornia.Controllers
             return query.ToList();
         }
 
+        public Tour GetById(int id)
+        {
+            var item = _context.Tours
+                .Where(i => i.TourId == id)
+                .FirstOrDefault();
+
+            return item;
+        }
+
+        public Tour GetByName(string name)
+        {
+            var item = _context.Tours
+                .Where(i => i.Name.Contains(name))
+                .FirstOrDefault();
+
+            return item;
+        }
+
         [HttpPost]
         public List<Tour> SearchTours([FromBody]TourSearchRequestDto request)
         {
-
             if (request.MinPrice > request.MaxPrice)
                 throw new HttpResponseException(new HttpResponseMessage
                 {
@@ -34,16 +51,18 @@ namespace ExploreCalifornia.Controllers
                     Content = new StringContent("MinPrice must be less than MaxPrice")
                 });
 
-            var query = _context.Tours.AsQueryable()
-                .Where(i => i.Price >= request.MinPrice && i.Price <= request.MaxPrice);
+            var query = _context.Tours.AsQueryable();
+
+            query = query.Where(i => i.Price <= request.MaxPrice
+                                     && i.Price >= request.MinPrice);
 
             return query.ToList();
         }
         
         [HttpPut]
-        public IHttpActionResult Put(int id, Tour tour)
+        public IHttpActionResult Put(int id, Tour dto)
         {
-            return Ok($"{id}: {tour.Name}");
+            return Ok($"Put {id} {dto.Name}");
         }
 
         [HttpPatch]

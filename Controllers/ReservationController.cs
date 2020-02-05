@@ -40,6 +40,7 @@ namespace ExploreCalifornia.Controllers
         }
 
         // PUT: api/Reservation/5
+        [DbUpdateExceptionFilter]
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutReservation(int id, Reservation reservation)
         {
@@ -54,28 +55,12 @@ namespace ExploreCalifornia.Controllers
             }
 
             db.Entry(reservation).State = EntityState.Modified;
-
-            try
-            {
-                await db.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReservationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/Reservation
-        [DbUpdateExceptionFilter]
         [ResponseType(typeof(Reservation))]
         public async Task<IHttpActionResult> PostReservation(Reservation reservation)
         {
@@ -86,8 +71,18 @@ namespace ExploreCalifornia.Controllers
 
             db.Reservations.Add(reservation);
 
-            await db.SaveChangesAsync();
-            
+            try
+            {
+                await db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                if (!(ex?.InnerException?.InnerException is SqlException sqlException))
+                    throw;
+
+                if (sqlException.Number == 2627)
+                    throw new HttpResponseException(HttpStatusCode.Conflict);
+            }
 
             return CreatedAtRoute("DefaultApi", new { id = reservation.ReservationId }, reservation);
         }

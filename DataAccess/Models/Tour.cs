@@ -22,7 +22,5 @@ namespace ExploreCalifornia.DataAccess.Models
         public string Notes { get; set; }
 
         public List<Reservation> Reservations { get; set; }
-
-
     }
 }

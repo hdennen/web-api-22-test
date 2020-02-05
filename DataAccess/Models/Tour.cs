@@ -21,6 +21,8 @@ namespace ExploreCalifornia.DataAccess.Models
         [Column(TypeName = "varchar(MAX)")]
         public string Notes { get; set; }
 
+        public List<Reservation> Reservations { get; set; }
+
 
     }
 }

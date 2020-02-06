@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Principal;
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using System.Web.Http.Routing;
@@ -9,6 +10,7 @@ using ExploreCalifornia.Filters;
 using ExploreCalifornia.Loggers;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Jwt;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Owin;
@@ -28,6 +30,7 @@ namespace ExploreCalifornia
             var json = config.Formatters.JsonFormatter.SerializerSettings;
             json.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
+            ConfigureJwt(app);
             ConfigureWebApi(app, config);
             ConfigureSwashbuckle(config);
         }
@@ -51,10 +54,10 @@ namespace ExploreCalifornia
             
             config.Services.Replace(typeof(IExceptionLogger), new UnhandledExceptionLogger());
             config.Services.Replace(typeof(IExceptionHandler), new UnhandledExceptionHandler());
+            
+            config.MessageHandlers.Add(new TokenValidationHandler());
 
             config.Filters.Add(new DbUpdateExceptionFilterAttribute());
-
-            config.MessageHandlers.Add(new AutoAuthenticationHandler());
             
             config.Formatters.XmlFormatter.UseXmlSerializer = true;
 
@@ -67,6 +70,20 @@ namespace ExploreCalifornia
             );
 
             app.UseWebApi(config);
+        }
+
+        public void ConfigureJwt(IAppBuilder app)
+        {
+            app.UseJwtBearerAuthentication(
+                new JwtBearerAuthenticationOptions
+                {
+                    AuthenticationMode = AuthenticationMode.Active,
+                    AllowedAudiences = new[] { GlobalConfig.Audience },
+                    IssuerSecurityKeyProviders = new IIssuerSecurityKeyProvider[]
+                    {
+                        new SymmetricKeyIssuerSecurityKeyProvider(GlobalConfig.Issuer, GlobalConfig.Secret)
+                    }
+                });
         }
     }
 }

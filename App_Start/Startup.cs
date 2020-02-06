@@ -32,7 +32,17 @@ namespace ExploreCalifornia
             ConfigureSwashbuckle(config);
         }
 
-
+        private void ConfigureSwashbuckle(HttpConfiguration config)
+        {
+            config
+                .EnableSwagger(c =>
+                {
+                    c.SingleApiVersion("v1", "A title for your API");
+                    var xmlDocPath = $"{AppDomain.CurrentDomain.BaseDirectory}\\bin\\ExploreCalifornia.xml";
+                    c.IncludeXmlComments(xmlDocPath);
+                })
+                .EnableSwaggerUi();
+        }
         private static void ConfigureWebApi(IAppBuilder app, HttpConfiguration config)
         {
             var constraintResolver = new DefaultInlineConstraintResolver();
@@ -43,6 +53,8 @@ namespace ExploreCalifornia
             config.Services.Replace(typeof(IExceptionHandler), new UnhandledExceptionHandler());
 
             config.Filters.Add(new DbUpdateExceptionFilterAttribute());
+
+            config.MessageHandlers.Add(new AutoAuthenticationHandler());
             
             config.Formatters.XmlFormatter.UseXmlSerializer = true;
 
@@ -55,15 +67,6 @@ namespace ExploreCalifornia
             );
 
             app.UseWebApi(config);
-        }
-
-        public void ConfigureSwashbuckle(HttpConfiguration config)
-        {
-            config.EnableSwagger(c => {
-                c.SingleApiVersion("v1", "title of api");
-                c.IncludeXmlComments($"{AppDomain.CurrentDomain.BaseDirectory}\\bin\\ExploreCalifornia.xml");
-                })
-                .EnableSwaggerUi();
         }
     }
 }

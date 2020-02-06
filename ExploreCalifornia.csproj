@@ -215,6 +215,7 @@
     <Compile Include="DataAccess\Models\AuthorizedApp.cs" />
     <Compile Include="DataAccess\Models\Tour.cs" />
     <Compile Include="ExceptionHandlers\UnhandledExceptionHandler.cs" />
+    <Compile Include="Filters\AutoAuthenticationHandler.cs" />
     <Compile Include="Filters\DbUpdateExceptionFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

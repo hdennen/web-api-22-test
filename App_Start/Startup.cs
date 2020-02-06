@@ -12,6 +12,7 @@ using Microsoft.Owin.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Owin;
+using Swashbuckle.Application;
 
 [assembly: OwinStartup(typeof(ExploreCalifornia.Startup))]
 namespace ExploreCalifornia
@@ -28,6 +29,7 @@ namespace ExploreCalifornia
             json.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
             ConfigureWebApi(app, config);
+            ConfigureSwashbuckle(config);
         }
 
 
@@ -53,6 +55,15 @@ namespace ExploreCalifornia
             );
 
             app.UseWebApi(config);
+        }
+
+        public void ConfigureSwashbuckle(HttpConfiguration config)
+        {
+            config.EnableSwagger(c => {
+                c.SingleApiVersion("v1", "title of api");
+                c.IncludeXmlComments($"{AppDomain.CurrentDomain.BaseDirectory}\\bin\\ExploreCalifornia.xml");
+                })
+                .EnableSwaggerUi();
         }
     }
 }

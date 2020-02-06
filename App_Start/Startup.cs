@@ -4,6 +4,7 @@ using System.Web.Http.ExceptionHandling;
 using System.Web.Http.Routing;
 using ExploreCalifornia.Config;
 using ExploreCalifornia.Constraints;
+using ExploreCalifornia.ExceptionHandlers;
 using ExploreCalifornia.Filters;
 using ExploreCalifornia.Loggers;
 using Microsoft.Owin;
@@ -35,9 +36,10 @@ namespace ExploreCalifornia
             var constraintResolver = new DefaultInlineConstraintResolver();
             constraintResolver.ConstraintMap.Add("identity", typeof(IdConstraint));
             config.MapHttpAttributeRoutes(constraintResolver);
-
-            config.Services.Replace(typeof(IExceptionLogger), new UnhandledExceptionLogger());
             
+            config.Services.Replace(typeof(IExceptionLogger), new UnhandledExceptionLogger());
+            config.Services.Replace(typeof(IExceptionHandler), new UnhandledExceptionHandler());
+
             config.Filters.Add(new DbUpdateExceptionFilterAttribute());
             
             config.Formatters.XmlFormatter.UseXmlSerializer = true;
